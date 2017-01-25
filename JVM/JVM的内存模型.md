@@ -49,3 +49,14 @@ Class文件中除了类的版本、方法表等内容外，还包括了在编译
 3. [内存模型2](http://blog.csdn.net/ithomer/article/details/6252552)（这个文章里有关于内存模型的明晰的示意图）
 
 4. [内存模型3](http://gityuan.com/2016/01/09/java-memory/)
+
+5. [内存模型4](http://blog.csdn.net/ol_beta/article/details/6791229)
+
+6. [内存模型5](http://blog.csdn.net/ustcxjt/article/details/7287430)
+
+7. [内存模型6](http://blog.sina.com.cn/s/blog_68158ebf0100wp83.html)
+
+8. [内存模型7](http://blog.csdn.net/zhaozheng7758/article/details/8623549)
+     
+     
+     

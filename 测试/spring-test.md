@@ -26,8 +26,10 @@ spring的单元测试只能对单个的对象进行测试，不能对整个web, 
 
 ## 参考文献
 
-1. spring集成测试： [http://www.uml.org.cn/j2ee/200905074.asp](http://www.uml.org.cn/j2ee/200905074.asp)
+1. [spring集成测试](http://www.uml.org.cn/j2ee/200905074.asp)
 
-2. spring-test的概念： [http://stackoverflow.com/questions/32223490/are-springs-mockmvc-used-for-unit-testing-or-integration-testing](http://stackoverflow.com/questions/32223490/are-springs-mockmvc-used-for-unit-testing-or-integration-testing)
+2. [spring-test的概念](http://stackoverflow.com/questions/32223490/are-springs-mockmvc-used-for-unit-testing-or-integration-testing)
 
-3. spring-test的官方文档: [http://docs.spring.io/spring/docs/current/spring-framework-reference/html/unit-testing.html](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/unit-testing.html)
+3. [spring-test的官方文档](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/unit-testing.html)
+
+4. [IBM](http://www.ibm.com/developerworks/cn/java/j-lo-springunitest/)

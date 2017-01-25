@@ -32,11 +32,13 @@ doCallRealMethod().when().someMethod()
 ````
 
 ## 参考文献
-教程： [http://www.w3ii.com/en-US/mockito/default.html](http://www.w3ii.com/en-US/mockito/default.html)
+1. 教程： [http://www.w3ii.com/en-US/mockito/default.html](http://www.w3ii.com/en-US/mockito/default.html)
 
-部分mock: [http://heipark.iteye.com/blog/1496603](http://heipark.iteye.com/blog/1496603)
+2. 部分mock: [http://heipark.iteye.com/blog/1496603](http://heipark.iteye.com/blog/1496603)
 
-中文教程: [http://blog.csdn.net/bboyfeiyu/article/details/52127551](http://blog.csdn.net/bboyfeiyu/article/details/52127551)
+3. 中文教程: [http://blog.csdn.net/bboyfeiyu/article/details/52127551](http://blog.csdn.net/bboyfeiyu/article/details/52127551)
+
+4. [http://blog.csdn.net/sdyy321/article/details/38757135](http://blog.csdn.net/sdyy321/article/details/38757135)
 
 ## 示例代码
-[https://github.com/Essviv/spring/tree/master/src/test/java/com/cmcc/syw/service/impl ](https://github.com/Essviv/spring/tree/master/src/test/java/com/cmcc/syw/service/impl )
+1. [https://github.com/Essviv/spring/tree/master/src/test/java/com/cmcc/syw/service/impl ](https://github.com/Essviv/spring/tree/master/src/test/java/com/cmcc/syw/service/impl )
