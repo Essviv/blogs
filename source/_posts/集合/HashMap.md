@@ -1,3 +1,9 @@
+---
+title: HashMap
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # HashMap
 
 哈希表使用的是 数组加链表的方式存储元素，具体如下：

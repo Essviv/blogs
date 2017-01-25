@@ -1,3 +1,9 @@
+---
+title: JAVA-IO学习之IO
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # JAVA-IO学习之IO
 
 JAVA的IO框架可大致分为三个部分：IO(也可以认为是BIO), NIO, NIO2. 这里只介绍IO的部分，其它两部分会在后续的学习中阐述.

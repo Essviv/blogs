@@ -1,3 +1,9 @@
+---
+title: AQS框架源码解析
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # AQS框架源码解析
 
 AQS类的全称是AbstractQueuedSynchronizer， 它的核心是通过维护一个名为state的整型变量和CLH队列（这里）， 子类通过修改状态变量的值来实现获取锁和释放锁的操作.

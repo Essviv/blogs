@@ -1,3 +1,9 @@
+---
+title: Executors
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # Executors
 
 Executors是并发包中提供的工具类，它可以用来创建以下这些对象:

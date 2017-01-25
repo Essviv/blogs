@@ -1,3 +1,9 @@
+---
+title: mybatis中的批量操作
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # mybatis中的批量操作
 
 ## 1. 语法

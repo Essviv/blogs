@@ -1,3 +1,9 @@
+---
+title: CopyOnWriteList和CopyOnWriteSet
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # CopyOnWriteList和CopyOnWriteSet
 
 COWSet的底层是通过COWList实现的， 在写操作的时候，有选择性的选择addIfAbsent版本的操作.

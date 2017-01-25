@@ -1,3 +1,9 @@
+---
+title: CountDownLatch, Semaphore, CyclicBarrier源码解析
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # CountDownLatch, Semaphore, CyclicBarrier源码解析
 java并发包下提供了AQS框架，使得锁的实现变得非常容易. 之前我们分析了ReentrantLock的源码（[这里](https://github.com/Essviv/blogs/blob/master/%E5%A4%9A%E7%BA%BF%E7%A8%8B/juc/AQS%E6%A1%86%E6%9E%B6/AQS%E6%A1%86%E6%9E%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.md)），我们知道这个是可重入的、公平性可选的独占锁. 简单回忆一下，在线程尝试获取锁对象时，RL底层会委托给sync对象进行处理，sync对象派生自AQS抽象类，并实现了AQS类中独占锁的两个方法, tryAcquire和tryRelease. 在获取锁的时候，如果锁被占用，则构建新的CLH队列节点并等待，直到其它的节点将它唤醒. 
 

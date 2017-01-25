@@ -1,3 +1,9 @@
+---
+title: junit
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # JUnit
 
 * **Test(timeout, expected)**： 表示该方法为单元测试方法，timeout表示执行的最长时间，expected表示预期方法会抛出的异常

@@ -1,3 +1,9 @@
+---
+title: RabbitMQ的安装
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # RabbitMQ的安装
 
 1. 安装RMQ后，需要启用后台管理插件

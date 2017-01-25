@@ -1,3 +1,9 @@
+---
+title: Spring security的原理
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # Spring security的原理
 
 在使用SS的时候，需要在web.xml里定义DelegatingFilterProxy，这个对象的作用是将托管在spring容器的对象当成filter来使用，它是个代理，所有对这个代理的调用最终都会调用它所代理的对象;

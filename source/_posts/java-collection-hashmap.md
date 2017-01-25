@@ -1,4 +1,10 @@
 ---
+title: java-collection-hashmap
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
+---
 layout:     post
 title:      java集合学习之源码分析
 subtitle:   hashMap

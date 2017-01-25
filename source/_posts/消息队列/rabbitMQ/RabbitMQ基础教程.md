@@ -1,3 +1,9 @@
+---
+title: RabbitMQ基础教程
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # RabbitMQ基础教程
 
 1. 生产者-消费者

@@ -1,3 +1,9 @@
+---
+title: mybatis migration
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # mybatis migration
 
 mybatis migration(MM)的目的也是对数据库升级进行管理， 它的命令主要包括：

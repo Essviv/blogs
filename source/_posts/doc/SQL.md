@@ -1,3 +1,9 @@
+---
+title: SQL
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 #SQL
 
 [字符类型的长度的意义](http://www.cnblogs.com/echo-something/archive/2012/08/26/mysql_int.html)

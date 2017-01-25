@@ -1,3 +1,9 @@
+---
+title: java集合学习之Map和Set的实现4
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # java集合学习之Map和Set的实现4
 Map接口并不继承自Collection接口，它是一系列key-value值的集合，它的类继承图如下，
 

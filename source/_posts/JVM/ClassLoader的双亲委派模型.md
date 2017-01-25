@@ -1,3 +1,9 @@
+---
+title: ClassLoader的双亲委派模型
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # ClassLoader的双亲委派模型
 
 ## ClassLoader的层次

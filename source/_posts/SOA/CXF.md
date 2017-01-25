@@ -1,3 +1,9 @@
+---
+title: CXF
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # CXF
 
 根据WSDL生成客户端的方式有以下几种：

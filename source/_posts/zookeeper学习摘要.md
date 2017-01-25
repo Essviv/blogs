@@ -1,3 +1,9 @@
+---
+title: zookeeper学习摘要
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 ## Stat结构
 * zxid: zookeeper transaction id, 这个ID表示了全局的顺序, zxid的值越小，那么该操作发生的时间越早.
 * czxid: 导致这个节点创建的操作zxid编号

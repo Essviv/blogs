@@ -1,3 +1,9 @@
+---
+title: Java_Concurrency_In_Practise笔记(1)-Thread safety
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # Java_Concurrency_In_Practise笔记(1)-Thread safety
 
 ## 使用多线程编程时会遇到的问题

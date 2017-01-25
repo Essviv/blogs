@@ -1,3 +1,9 @@
+---
+title: easyMock
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # EasyMock
 
 ## 参考文献

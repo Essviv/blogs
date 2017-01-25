@@ -1,3 +1,9 @@
+---
+title: Synchronized关键字
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # Synchronized关键字
 
 1. **synchronized提供的是排它的、不公平的、可重入的锁，这是JAVA对象内含的锁对象.**

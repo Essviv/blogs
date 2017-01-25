@@ -1,4 +1,10 @@
 ---
+title: java-collection-implements
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
+---
 layout:		post
 author:		Essviv
 title:		Java集合学习

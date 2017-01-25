@@ -1,3 +1,9 @@
+---
+title: java集合学习之Queue的实现5
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # java集合学习之Queue的实现5
 
 ## Queue接口

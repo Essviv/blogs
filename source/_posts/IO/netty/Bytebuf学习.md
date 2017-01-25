@@ -1,3 +1,9 @@
+---
+title: Bytebuf学习
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # Bytebuf学习
 
 ByteBuf同时支持随机和序列化的方式读取byte数组， 它是nio buffer以及byte数组的抽象视图类. 

@@ -1,4 +1,10 @@
 ---
+title: java-collection-concurrent-implements
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
+---
 layout:		post
 title:		java集合学习
 subtitle:	并发实现

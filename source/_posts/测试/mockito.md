@@ -1,3 +1,9 @@
+---
+title: mockito
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # mockito
 
 * 调用自己的方法: doReturn(sth).when(xxx).somemethod()

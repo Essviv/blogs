@@ -1,3 +1,9 @@
+---
+title: Spring的IoC框架
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 ## 容器的含义
 
 Spring中的ApplicationContext继承自BeanFactory， 除了提供了BeanFactory的功能外，还额外提供了依赖管理，消息、生命周期监听等等功能，它就是所谓的“容器”

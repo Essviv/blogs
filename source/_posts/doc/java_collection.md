@@ -1,3 +1,9 @@
+---
+title: java_collection
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 #Java collection framework
 The core collection interfaces are the foundation of the Java Collections Framework.
 

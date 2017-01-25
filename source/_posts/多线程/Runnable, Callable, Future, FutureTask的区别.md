@@ -1,3 +1,9 @@
+---
+title: Runnable, Callable, Future, FutureTask的区别
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # Runnable, Callable, Future, FutureTask的区别
 
 * Runnable是thread用来执行时指定的对象，它只包含有一个方法，run方法，这个方法没有返回值，且不会抛出异常信息.

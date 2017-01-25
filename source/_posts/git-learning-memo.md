@@ -1,4 +1,10 @@
 ---
+title: git-learning-memo
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
+---
 layout:		post
 title: 		Git学习备忘
 date: 		2016-04-27 12:38:00+0800

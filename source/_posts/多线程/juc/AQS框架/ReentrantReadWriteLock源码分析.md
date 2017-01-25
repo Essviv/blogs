@@ -1,3 +1,9 @@
+---
+title: ReentrantReadWriteLock源码分析
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # ReentrantReadWriteLock源码分析
 在之前的源码分析 中，ReentrantLock展示了排它锁的实现，而CountDownLatch和Semaphore则展示了共享锁的实现，接下来，我们要一起看看ReentrantReadWriteLock(RRWL)的源码，它同时实现了独占锁和共享锁，对于写操作而言，它是独占锁；对于读操作来讲，它是可共享的.
 

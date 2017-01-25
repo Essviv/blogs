@@ -1,3 +1,9 @@
+---
+title: JAVA中的多线程基础知识
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # JAVA中的多线程基础知识
 
 ## Thread

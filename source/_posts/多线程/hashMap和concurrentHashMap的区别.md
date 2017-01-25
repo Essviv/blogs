@@ -1,3 +1,9 @@
+---
+title: hashMap和concurrentHashMap的区别
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # hashMap和concurrentHashMap的区别
 
 1. 线程安全

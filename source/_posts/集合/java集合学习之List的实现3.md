@@ -1,3 +1,9 @@
+---
+title: java集合学习之List的实现3
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # java集合学习之List的实现3
 
 在Java集合框架中，对于List接口的实现主要有两种， ArrayList和LinkedList. 前者底层是基于数组的实现，后者底层是基于双向链表的实现.

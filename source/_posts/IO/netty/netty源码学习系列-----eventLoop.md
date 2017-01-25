@@ -1,3 +1,9 @@
+---
+title: netty源码学习系列-----eventLoop
+author: essviv
+date: 2017-01-25 10:20:54+0800
+---
+
 # netty源码学习系列-----eventLoop
 
 ## netty是如何实现对于某个channel的IO事件，交由同一个线程去处理?
