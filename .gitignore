@@ -179,3 +179,7 @@ buildNumber.properties
 .mvn/timing.properties
 
 Servers/
+
+db.json
+
+public/
