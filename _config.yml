@@ -2,12 +2,22 @@
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 
+fancybox: true ## If you want to use fancybox please set the value to true.
+duoshuo: essviv ## Your duoshuo_shortname, e.g. username
+google_search: true ## Use Google search, true/false.
+baidu_search: ## Use Baidu search, true/false.
+self_search: ## Use a jQuery-based local search engine, true/false.
+google_analytics: ## Your Google Analytics tracking id, e.g. UA-42425684-2
+show_category_count: false ## If you want to show the count of categories in the sidebar widget please set the value to true.
+shareto: true ## If you want to use the share button please set the value to true.
+widgets_on_small_screens: false ## Set to true to enable widgets on small screens.
+
 # Site
 title: Essviv
 subtitle: Dare to be different
 description:
 author: Essviv
-language: zh-Hans
+language: zh-CN
 timezone:
 
 # URL
@@ -63,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: next
+theme: maupassant
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -73,4 +83,4 @@ deploy:
   branch: master
 
 # Scheme
-scheme: Mist
+scheme: Pisces
