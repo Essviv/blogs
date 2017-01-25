@@ -71,7 +71,7 @@ BlockingQueue接口在Queue接口的基础上，增加了阻塞操作，当请�
 ![blocking-queue-hierarchy](https://github.com/Essviv/images/blob/master/blocking-queue-methods.jpg?raw=true)
 
 ## LinkedBlockingQueue实现
-LinkedBlockQueue(LBQ)是长度不限(也可以限制大小)的队列实现，首先先来看下中定义的变量， count表示当前队列中的元素个数，head,last分别指向队首元素和队尾元素. 除此之外，LBQ还定义了两组可重入锁（这种锁是可重入的排它锁）和相应的条件对象，分别用于表示put操作和take操作，对应的condition对象表示了非空和非满两种状态（对于“重入锁”的实现 ，可见[这里](https://leanote.com/note/58466b91b026af6100000001 "这里")). 可以预见，在LBQ中所有关于元素的写操作(put或者take)都必须获取这两个锁中的一个，在操作完之后，都要通过相应的condition(notFull或者notEmpty）进行相应的signal操作.
+LinkedBlockQueue(LBQ)是长度不限(也可以限制大小)的队列实现，首先先来看下中定义的变量， count表示当前队列中的元素个数，head,last分别指向队首元素和队尾元素. 除此之外，LBQ还定义了两组可重入锁（这种锁是可重入的排它锁）和相应的条件对象，分别用于表示put操作和take操作，对应的condition对象表示了非空和非满两种状态（对于“重入锁”的实现 ，可见[这里](https://github.com/Essviv/blogs/blob/master/%E5%A4%9A%E7%BA%BF%E7%A8%8B/juc/AQS%E6%A1%86%E6%9E%B6/AQS%E6%A1%86%E6%9E%B6%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.md)). 可以预见，在LBQ中所有关于元素的写操作(put或者take)都必须获取这两个锁中的一个，在操作完之后，都要通过相应的condition(notFull或者notEmpty）进行相应的signal操作.
 
 ![linked-blocking-queue-methods](https://github.com/Essviv/images/blob/master/linked-blocking-queue-method.jpg?raw=true)
 

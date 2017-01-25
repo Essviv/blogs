@@ -29,7 +29,7 @@ netty实现的服务端代码如下，表面上看来，和上面那段代码看
 
 源码的第一行初始了ServerBootStrap对象，它继承自AbstractBootStrap对象，从名字上可以看出，这个对象的作用就是引导服务端的启动程序，通过这个对象可以配置服务端启动过程中需要用到的参数.  从上面的“标准”代码中可以看到，对于服务端来讲，需要配置的参数包括**绑定的地址和服务端channel**，但在netty的配置中除了这两项还多了其它的一些配置：
 
-* bossEventGroup和workerEventLoopGroup: netty框架在实现的过程中，使用了Reactor模型，这两个参数就是在reactor模型中定义的，关于Reactor模型的详细内容，可以参考[这里](https://leanote.com/note/58350f18b026af4fdd000000). 简单来讲，reactor模型的实现中，可以定义两组线程池，一组用来处理来自客户端的连接请求，而另一组用来处理已连接的客户端产生的IO事件， 从而提高处理连接和IO事件的效率.
+* bossEventGroup和workerEventLoopGroup: netty框架在实现的过程中，使用了Reactor模型，这两个参数就是在reactor模型中定义的，关于Reactor模型的详细内容，可以参考[这里](https://github.com/Essviv/blogs/blob/master/IO/netty/reactor%E6%A8%A1%E5%9E%8B.md). 简单来讲，reactor模型的实现中，可以定义两组线程池，一组用来处理来自客户端的连接请求，而另一组用来处理已连接的客户端产生的IO事件， 从而提高处理连接和IO事件的效率.
 
 * childHandler: 这个参数配置是客户端连接完成后，后续的IO事件的处理器， 事件处理器的概念也是来自reactor模型， 在netty中，事件处理器被组织成channelPipeline的形式，当通道中有IO事件发生时，这些事件会顺着pipeline依次通过每个事件处理器，事件处理器会根据需要选择对IO事件进行处理或发往下一个处理器，关于pipeline和处理器的更多内容，会在后续的文章中进行阐述。
 
@@ -70,7 +70,7 @@ SSC的初始化是在initAndRegister方法中完成的， 可以看到，首先�
 
 那么，现在的问题就变成了，这个channelRead事件是在哪里被触发，又是怎么被传递给这个sba的呢？回头看“标准”实现代码，服务端启动后，是通过selector不断轮询的方式，来及时地处理客户端连接以及其它的IO事件. 那么在netty实现的代码中，肯定也有哪些地方完成了这些操作，执行那些操作的地方也必然会触发这个channelRead事件，并传递给sba. 再回头来看看绑定部分的代码.
 
-在SSC发起bind操作之后，它会将绑定操作委托给它的pipeline, 后者又进一步委托给channelHandlerContext(关于channel, channelPipeline, channelHandler, ChannelHandlerContext之间的关系，可以参考[这里](https://leanote.com/note/58007d26b026af7ede000000).）查看channelHandlerContext的绑定操作，我们会发现以下这样的代码，这段代码在netty的源码中经常可以看到，简单来说，它的意思是判断一下当前操作的线程是不是当前channel绑定的那个eventLoop线程，如果是就直接执行相应操作，否则，将要执行的操作包装成一个task扔给eventLoop线程中的任务队列，在它方便的时候执行. 这样的机制保证了netty中任何一个channel的所有事件，都是由同一个eventLoop线程执行的, 即使是在同时有多个channel的情况下，也可以保证同一个channel的所有事件是按顺序执行的，而不用考虑多线程情况下的竞争条件和锁等问题（这个实现后续会在其它文章中进一步说明，这里点到为止）
+在SSC发起bind操作之后，它会将绑定操作委托给它的pipeline, 后者又进一步委托给channelHandlerContext(关于channel, channelPipeline, channelHandler, ChannelHandlerContext之间的关系，可以参考[这里](https://github.com/Essviv/blogs/blob/master/IO/netty/netty%E6%80%BB%E8%A7%88%E5%9B%BE-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6.md).）查看channelHandlerContext的绑定操作，我们会发现以下这样的代码，这段代码在netty的源码中经常可以看到，简单来说，它的意思是判断一下当前操作的线程是不是当前channel绑定的那个eventLoop线程，如果是就直接执行相应操作，否则，将要执行的操作包装成一个task扔给eventLoop线程中的任务队列，在它方便的时候执行. 这样的机制保证了netty中任何一个channel的所有事件，都是由同一个eventLoop线程执行的, 即使是在同时有多个channel的情况下，也可以保证同一个channel的所有事件是按顺序执行的，而不用考虑多线程情况下的竞争条件和锁等问题（这个实现后续会在其它文章中进一步说明，这里点到为止）
 
 ![netty-server](https://github.com/Essviv/images/blob/master/netty-server-10.jpg?raw=true)
 

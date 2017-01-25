@@ -22,4 +22,4 @@ Java的Object类中提供了两个重要的方法，equals和hashCode， 在map�
 
 ![hash-code-and-equals-methods](https://github.com/Essviv/images/blob/master/hash-code-and-equals-methods-2.jpg?raw=true)
 
-事实上，上述问题与hashMap的内部实现有着很大的关系，关于hashMap的源码解析，请见[HashMap源码解析](https://leanote.com/note/5716e7ad022e574810000000)
+事实上，上述问题与hashMap的内部实现有着很大的关系，关于hashMap的源码解析，请见[HashMap源码解析](https://github.com/Essviv/blogs/blob/master/%E9%9B%86%E5%90%88/java%E9%9B%86%E5%90%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%901.md)
