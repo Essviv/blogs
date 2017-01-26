@@ -1,10 +1,4 @@
 ---
-title: quota
-author: essviv
-date: 2017-01-25 10:20:54+0800
----
-
----
 layout:		post
 title:		自勉
 date:		2016-05-04 18:00:00+0800

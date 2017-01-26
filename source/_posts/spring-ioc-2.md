@@ -1,10 +1,4 @@
 ---
-title: spring-ioc-2
-author: essviv
-date: 2017-01-25 10:20:54+0800
----
-
----
 layout:		post
 title:		Spring学习之IoC
 subtitle:	IoC(2)

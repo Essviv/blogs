@@ -1,10 +1,4 @@
 ---
-title: reference-types-in-java
-author: essviv
-date: 2017-01-25 10:20:54+0800
----
-
----
 layout:		post
 author:		Essviv
 title:		强引用，软引用，弱引用以及虚引用

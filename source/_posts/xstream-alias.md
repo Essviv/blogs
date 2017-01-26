@@ -1,10 +1,4 @@
 ---
-title: xstream-alias
-author: essviv
-date: 2017-01-25 10:20:54+0800
----
-
----
 layout:		post
 title: 		XStream学习(1)
 subtitle:	别名

@@ -17,7 +17,7 @@ title: Essviv
 subtitle: Dare to be different
 description:
 author: Essviv
-language: zh-CN
+language: zh-Hans
 timezone:
 
 # URL
@@ -73,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: maupassant
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -81,6 +81,3 @@ deploy:
   type: git
   repo: git@github.com:essviv/essviv.github.io.git
   branch: master
-
-# Scheme
-scheme: Pisces
