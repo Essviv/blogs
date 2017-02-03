@@ -1,7 +1,7 @@
 ---
 title: id_auto_increment_accross_tables
 author: essviv
-date: 2017-01-25 10:20:54+0800
+date: 2016-01-25 10:20:54+0800
 ---
 
 #分表情况下的用户ID自增策略

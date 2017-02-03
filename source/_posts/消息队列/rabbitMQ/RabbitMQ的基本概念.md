@@ -1,10 +1,8 @@
 ---
 title: RabbitMQ的基本概念
 author: essviv
-date:2016-04-09 10:20:54+0800
+date: 2016-04-09 10:20:54+0800
 ---
-
-# RabbitMQ的基本概念
 
 RMQ的基本概念： [基本概念](http://www.rabbitmq.com/tutorials/amqp-concepts.html)
 
