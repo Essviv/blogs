@@ -1,7 +1,7 @@
 ---
 title: RabbitMQ的安装
 author: essviv
-date: 2017-01-25 10:20:54+0800
+date: 2016-05-17 10:20:54+0800
 ---
 
 # RabbitMQ的安装

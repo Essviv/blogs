@@ -1,7 +1,7 @@
 ---
 title: AMQP学习
 author: essviv
-date: 2017-01-25 10:20:54+0800
+date: 2016-04-07 10:20:54+0800
 ---
 
 # AMQP学习

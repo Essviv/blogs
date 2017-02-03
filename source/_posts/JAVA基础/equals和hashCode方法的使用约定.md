@@ -1,7 +1,7 @@
 ---
 title: equals和hashCode方法的使用约定
 author: essviv
-date: 2017-01-25 10:20:54+0800
+date: 2017-01-24 10:20:54+0800
 ---
 
 Java的Object类中提供了两个重要的方法，equals和hashCode， 在map和set中这两个方法起到了至关重要的作用，以下是使用和重写这两个方法时的约定

@@ -1,7 +1,7 @@
 ---
 title: RabbitMQ基础教程
 author: essviv
-date: 2017-01-25 10:20:54+0800
+date: 2016-04-08 10:20:54+0800
 ---
 
 # RabbitMQ基础教程

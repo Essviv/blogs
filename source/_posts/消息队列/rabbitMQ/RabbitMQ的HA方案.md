@@ -1,7 +1,7 @@
 ---
 title: RabbitMQ的HA方案
 author: essviv
-date: 2017-01-25 10:20:54+0800
+date: 2017-01-24 10:20:54+0800
 ---
 
 # RabbitMQ的HA方案
