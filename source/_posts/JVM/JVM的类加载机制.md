@@ -91,10 +91,6 @@ JVM的类从被加载到虚拟机，到从内存中卸载，可以分为七个�
 
 * 虚拟机会保证类的()方法在多线程环境中被正确地加锁和同步.
 
-## 使用
-
-## 卸载 
-
 ## 参考文献
 
 1. [类加载机制](http://wiki.jikexueyuan.com/project/java-vm/class-loading-mechanism.html)
