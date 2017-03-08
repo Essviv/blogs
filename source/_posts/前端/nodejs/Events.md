@@ -1,7 +1,7 @@
 ---
 title: Node.js - Events
 author: Essviv
-date: 2017-03-08 16:06:00+0800
+date: 2017-03-08 16:25:00+0800
 tags:
 	- nodejs
 	- events
