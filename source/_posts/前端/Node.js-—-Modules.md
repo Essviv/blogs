@@ -256,3 +256,133 @@ Error: Cannot find module 'some-library'
 
 ## 从全局目录中加载
 
+如果设置了环境变量NODE_PATH，那么Node.js会在其它地方搜索不到模块的时候，从这个环境变量指定的目录中进行查找. NODE_PATH环境变量是在当前的路径搜索机制完全确定之前，用来支持各种各样的路径搜索.
+
+目前仍然可以使用NODE_PATH环境变量设置模块搜索的路径，但已经不是那么必要了，Node.js生态已经对模块搜索的路径有了一致的认识. 有时候，部署那些依赖于NODE_PATH环境变量的模块时，如果忘了设置这个变量的值，可能会导致一些很奇怪的现象产生. 例如，依赖的模块版本号会发生变更（有时候甚至是不同的模块）
+
+另外，Node.js也将会在以下目录搜索模块, 其中$PREFIX是在Node.js中设置的. 
+
+````javascript
+1: $HOME/.node_modules
+2: $HOME/.node_libraries
+3: $PREFIX/lib/node
+````
+
+值得一提的是，这些搜索路径大部分是由于历史原因被保留，当前Node.js强烈建议将依赖的模块放在本地的node_modules， 这样不但能加快模块的加载速度，还能提高模块加载的稳定性.
+
+## 模块包装器
+
+在模块中的代码被执行之前，Node.js会使用类似于以下的方法对模块中的代码进行包装: 
+
+````javascript
+(function (exports, require, module, __filename, __dirname) {
+// Your module code actually lives in here
+});
+````
+
+通过这种包装，Node.js可以有以下的优势:
+
+* 避免了全局变量污染，通过包装器，模块的顶级变量被限制在模块内部，成为模块的私有变量，而不是全局变量
+* 同时，通过包装器，它还提供了这样一些变量，它们看起来像是全局变量，但实际是模块的私有变量，如module, exports以及require等
+  * module和exports变量是CommonJS规范中，用于导出模块变量时使用
+  * \_\_filename和\_\_dirname可以很方便地用来获取当前模块的文件路径信息和目录信息
+
+## module对象
+
+在每个模块中，module变量都被用来指向当前模块. 为了方便，通常可以使用exports变量来指代module.exports. 事实上，module变量只是模块的局部变量，而不是全局变量（具体原因见“模块包装器”一节）
+
+### module.children
+
+这个变量表示被当前模块依赖的所有模块对象，类型为数组
+
+### module.exports
+
+这个对象是由Module系统创建的，但是有时候模块需要导出由它们自己创建的对象. **为了达到这点，需要重新将module.exports指向新的对象，从而达到导出对象的目的. 值得注意的是，如果是让exports变量重新指向新的对象，那么模块将不会导出这个对象. 根本原因是模块最后导出的是module.exports, 而不是exports.** 例如：
+
+````javascript
+//a.js
+const EventEmitter = require('events');
+
+module.exports = new EventEmitter();
+
+// Do some work, and after some time emit
+// the 'ready' event from the module itself.
+setTimeout(() => {
+  module.exports.emit('ready');
+}, 1000);
+
+//b.js
+//那么我们可以在另一个文件中加载该模块
+const a = require("./a");
+a.on("ready", ()=>{
+  console.log("module a is ready");
+});
+````
+
+注意这里重新将module.exports指向新的对象，而不是exports. 另外，必须是直接导出对象，而不能通过回调函数来导出.
+
+````javascript
+//x.js
+setTimeout(() => {
+  module.exports = { a: 'hello' };
+}, 0);
+
+//y.js
+const x = require('./x');
+console.log(x.a);
+````
+
+### exports
+
+exports变量在模块内可见，并且在模块被加载之前，exports的值被设置为module.exports的值. 在使用exports变量的时候，可以对它赋予新的属性，如exports.f = …. 但是，不能将新的对象和函数赋予exports， 因为这将导致exports和module.exports变量指向的对象不是同一个，而模块在最后导出的是module.exports指向的变量，因此指定的新对象将不会被导出. 
+
+````javascript
+module.exports.hello = true; // Exported from require of module
+exports = { hello: false };  // Not exported, only available in the module
+````
+
+当将一个新的对象赋予module.exports变量时，常见的方式是同时将它也赋予exports， 这样后续还是可以使用exports增加属性. 例如: 
+
+````javascript
+module.exports = exports = function Constructor() {
+    // ... etc.
+````
+
+为了更好地说明module.exports和exports变量的作用，以下是require()方法的模拟实现，它与Node.js中真实的实现非常的类似: 
+
+````javascript
+function require(...) {
+  var module = { exports: {} };
+  ((module, exports) => {
+    // Your module code here. In this example, define a function.
+    function some_func() {};
+    exports = some_func;
+    // At this point, exports is no longer a shortcut to module.exports, and
+    // this module will still export an empty default object.
+    module.exports = some_func;
+    // At this point, the module will now export some_func, instead of the
+    // default object.
+  })(module, module.exports);
+  return module.exports;
+}
+````
+
+### module.filename
+
+该变量指向当前模块的路径名
+
+### module.id
+
+当前模块的id， 通常情况下就是当前模块的路径名
+
+### module.loaded
+
+指示当前模块是否已经加载完成，还是正在加载中
+
+### module.parent
+
+第一个依赖于当前模块的模块
+
+### module.require(id)
+
+module.require()方法提供了一种方法，可以从module中来加载指定id的模块. 这里首先要获取到module对象，通常情况下，模块导出的都是module.exports, 因此必须显式地导出module对象，从而调用这个方法.
