@@ -1,7 +1,7 @@
 ---
 title: Node.js — Stream(2)
 author: essviv
-date: 2017-03-14 08:30:00+0800
+date: 2017-03-14 09:30:00+0800
 tags: 
 	- nodejs
 	- stream.Readable
