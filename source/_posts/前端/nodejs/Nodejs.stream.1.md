@@ -7,7 +7,7 @@ tags:
 	- stream.Writable
 ---
 
-# 流(1)
+# 流
 
 在node.js中，流对象是用来操作流数据的抽象接口. Stream模块提供了基础的API接口，以方便应用程序实现相应的接口来构建对象.Node.js提供了多种流对象，比如说，httpServer中request对象，以及process中的标准输出对象stdout，都属于流接口的实现.
 
