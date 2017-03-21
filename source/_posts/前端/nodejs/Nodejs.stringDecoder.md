@@ -9,7 +9,7 @@ tags:
 
 # StringDecoder
 
-string_decoder模块提供了将Buffer对象包装成String对象的方法，它可以保留编码后的多字节字符. 可以通过以下的方法来调用该模块:
+string_decoder模块提供了将Buffer对象包装成String对象的方法，它可以保留编码后不完整的字节字符. 可以通过以下的方法来调用该模块:
 
 ````javascript
 const stringDecoder = require("string_decoder");
