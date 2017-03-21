@@ -105,3 +105,6 @@ setImmediate()，setTimeout()以及setInterval()方法返回了相应的定时�
 # 参考文献
 
 1. [官方文献](https://nodejs.org/dist/latest-v6.x/docs/api/timers.html)
+2. [Event Loop](http://stackoverflow.com/questions/17502948/nexttick-vs-setimmediate-visual-explanation)
+3. [Event Loop 2](http://www.ruanyifeng.com/blog/2014/10/event-loop.html)
+4. [Event Loop 3](https://nodesource.com/blog/understanding-the-nodejs-event-loop/)
