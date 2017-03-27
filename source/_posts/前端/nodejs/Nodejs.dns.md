@@ -257,3 +257,4 @@ dns.lookup()方法使用了与操作系统中其它的应用程序一样的机�
 1. rrtype的含义: [wiki](https://en.wikipedia.org/wiki/List_of_DNS_record_types)
 2. rrtype的含义2: [cnblog](http://www.cnblogs.com/sddai/p/5703394.html)
 3. dns学习: [dns-learning](http://dns-learning.twnic.net.tw/bind/intro6.html)
+4. 官方文档: [dns](https://nodejs.org/dist/latest-v6.x/docs/api/dns.html)
