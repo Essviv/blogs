@@ -48,8 +48,9 @@ IO模型图: 感觉这里的IO多路复用更应该属于“同步阻塞”，�
 
 ## 参考文献
 
-概念比较1： [IO - 同步，异步，阻塞，非阻塞 （亡羊补牢篇）](http://blog.csdn.net/historyasamirror/article/details/5778378)
-概念比较2： [大话同步/异步、阻塞/非阻塞](https://ring0.me/2014/11/sync-async-blocked/)
-AIO简介： [AIO简介](http://www.ibm.com/developerworks/cn/linux/l-async/)
-BIO, NIO和AIO的理解： [BIO, NIO和AIO的理解](http://qindongliang.iteye.com/blog/2018539)
-这篇文章很详细地阐述了同步与异步、阻塞与非阻塞的区别: http://www.jianshu.com/p/55eb83d60ab1
+1. 概念比较1： [IO - 同步，异步，阻塞，非阻塞 （亡羊补牢篇）](http://blog.csdn.net/historyasamirror/article/details/5778378)
+2. 概念比较2： [大话同步/异步、阻塞/非阻塞](https://ring0.me/2014/11/sync-async-blocked/)
+3. AIO简介： [AIO简介](http://www.ibm.com/developerworks/cn/linux/l-async/)
+4. BIO, NIO和AIO的理解： [BIO, NIO和AIO的理解](http://qindongliang.iteye.com/blog/2018539)
+5. 这篇文章很详细地阐述了同步与异步、阻塞与非阻塞的区别: http://www.jianshu.com/p/55eb83d60ab1
+6. 比较reactor和proactor: [比较reactor和proactor](http://blog.jobbole.com/59676/)
