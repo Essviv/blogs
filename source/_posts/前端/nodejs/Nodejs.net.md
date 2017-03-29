@@ -393,3 +393,116 @@ const client = net.connect({path: '/tmp/echo.sock'});
 
 ## net.connect(path\[, connectListener])
 
+工厂方法，用于创建net.Socket对象，并按照options参数指定的属性进行连接. 
+
+connectListener回调方法会在connect事件被触发后回调
+
+## net.connect(port\[, host\]\[, connectListener\])
+
+工厂方法，用于创建net.Socket对象，并按照port和post提供的参数建立连接.
+
+如果省略了host参数，那么默认使用localhost.
+
+connectListener回调函数会在connect事件被触发后回调.
+
+## net.createConnection(options\[, connectListener\])
+
+工厂方法，用于创建net.Socket对象，并按照options参数提供的建立连接. options参数会被传递给net.Socket类的构造函数和net.connect()方法. 
+
+在options参数中设置timeout值全导致在创建完net.Socket对象后调用socket.setTimeout()方法，但该方法的调用在连接操作发生之前. 示例代码如下:
+
+````javascript
+const net = require('net');
+const client = net.createConnection({port: 8124}, () => {
+  //'connect' listener
+  console.log('connected to server!');
+  client.write('world!\r\n');
+});
+client.on('data', (data) => {
+  console.log(data.toString());
+  client.end();
+});
+client.on('end', () => {
+  console.log('disconnected from server');
+});
+````
+
+如果要连接到/tmp/echo.sock，那么只需要修改第二行即可： 
+
+````javascript
+const client = net.connect({path: '/tmp/echo.sock'});
+````
+
+## net.createConnection(path\[, connectListener])
+
+工厂方法，用于创建net.Socket对象，并按照path参数建立连接. 
+
+connectListener回调函数会在connect事件被触发后回调.
+
+## net.createConnection(port\[, host\]\[, connectListener\])
+
+工厂方法，用于创建net.Socket对象并根据port参数和host参数建立连接. 
+
+如果host参数被省略，那么默认使用localhost.
+
+connectListener回调函数会在connect事件被触发后回调.
+
+## net.createServer(\[options\]\[, connectListener\])
+
+该方法用于创建新的服务端，connectListener回调方法会自动注册成connection事件的监听器.
+
+options参数有以下属性，它们的默认值分别为：
+
+````javascript
+allowHalfOpen: false,
+pauseOnConnect: false
+````
+
+如果allowHalfOpen参数为true, 那么当socket收到FIN包时并不会自动返回FIN包. 当收到FIN包时，socket变成不可读状态，但它仍然是可写的，必须通过显式调用end()方法来关闭当前连接. 具体可以参见end事件的说明. 
+
+如果pauseOnConnect参数被设置为true, 那么新建连接的socket会处于暂停的状态，这样就不会有数据被读取. 这个机制允许在建立完连接后，将连接转交给其它的进程处理，而socket中的数据不会被原始进程读取. 当其它进程需要读取socket中的数据时，可以调用resume()方法来恢复. 示例代码如下：
+
+````javascript
+const net = require('net');
+const server = net.createServer((c) => {
+  // 'connection' listener
+  console.log('client connected');
+  c.on('end', () => {
+    console.log('client disconnected');
+  });
+  c.write('hello\r\n');
+  c.pipe(c);
+});
+server.on('error', (err) => {
+  throw err;
+});
+server.listen(8124, () => {
+  console.log('server bound');
+});
+````
+
+可以通过telnet命令来测试该方法. 如果要监听/tmp/echo.sock，只需要修改倒数第三行即可:
+
+````javascript
+server.listen('/tmp/echo.sock', () => {
+  console.log('server bound');
+});
+````
+
+可以使用nc命令来连接UNIX域的socket服务.
+
+## net.isIP(input)
+
+该方法用于测试input参数是否是有效的IP地址. 该方法返回0说明不是有效的IP地址，返回4说明是IPv4地址，返回6说明是IPv6地址. 
+
+## net.isIP4(input)
+
+当input参数是有效的IPv4地址时，返回true, 否则false
+
+## net.isIP6(input)
+
+当input参数是有效的IPv6地址时，返回true, 否则false
+
+# 参考文献
+
+1. [官方文档](https://nodejs.org/dist/latest-v6.x/docs/api/net.html)
