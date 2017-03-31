@@ -644,3 +644,367 @@ response.statusMessage = 'Not found';
 
 当响应对象的头信息已经被发送给客户端后，该属性标识了发送到客户端的状态信息.
 
+## response.write(chunk\[, encoding\]\[,callback\])
+
+* chunk: String | Buffer
+* encoding: String
+* callback: Function
+* 返回： Boolean
+
+如果调用该方法时没有调用过response.writeHead()方法，那么响应对象会自动切换到隐式头信息模式，并把通过response.setHeader()方法设置的头信息写入到响应对象中. 
+
+这个方法会往响应对象的消息体中写入chunk数据. 可以多次调用这个方法连接向消息体写入数据. 
+
+chunk参数可以是Buffer类型或者是字符串类型. 如果chunk参数是字符串类型，那么encoding参数指定了它的编码格式. 默认情况下，encoding参数的值是'utf8'. callback回调方法会在数据flush的时候被调用.
+
+**备注：** 这里的http消息体是"裸"数据，它和multi-part消息编码格式没有任何关系.
+
+当第一次调用该方法时，它会把之前缓存的头消息和chunk数据一起发送给客户端； 当第二次调用该方法时，node.js会假设应用程序正在输出流数据，因此会把这部分数据单独发送，也就是说，响应对象缓存的数据直到发送第一块数据时被一起发送. 
+
+当整个数据被成功flush到内核的缓冲区时，该方法返回true; 否则返回false. 后续当缓冲区再次可写时，会触发drain事件. 
+
+## response.writeContinue()
+
+调用该方法会往客户端发送'HTTP/1.1 100 Continue'的响应信息， 意味着客户端可以继续发送请求消息体. 具体可以参见http.Server类的checkContinue事件. 
+
+## response.writeHead(statusCode[, statusMessage\]\[, headers\])
+
+* statusCode: Number
+* statusMessage: String
+* headers: Object
+
+调用该方法可设置发送给客户端的响应头信息. 其中statusCode是3位数的状态码，如404. 最后一个参数headers是响应消息头. statusMessage参数是可选的状态消息. 
+
+````javascript
+var body = 'hello world';
+response.writeHead(200, {
+  'Content-Length': Buffer.byteLength(body),
+  'Content-Type': 'text/plain' });
+````
+
+该方法只能被调用一次，并且必须在response.end()方法被调用之前调用. 如果在调用这个方法之前调用了response.write()方法或者response.end()方法，那么响应对象自动切换到隐式头信息模式，通过setHeader()方法设置的头消息会自动被设置到响应消息的消息头部分. 
+
+如果同时调用了response.setHeader()方法和response.writeHead()方法，那么它们设置的消息头会被合并,但是response.writeHead()方法设置的消息头有更高的优先级. 
+
+````javascript
+// returns content-type = text/plain
+const server = http.createServer((req,res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('X-Foo', 'bar');
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('ok');
+});
+````
+
+**备注:** Content-Length消息头的值是字节数，而不是字符数. 上述的例子能够正常工作是因为它的消息体('hello world')只含有单字节字符， 如果消息体中含有多字节字符，那么必须通过Buffer.byteLength()方法来决定其字节数. 另外，node.js的http模块并不会校验Content-Length消息头中指定的长度与实际发送的消息体长度是否一样.
+
+如果指定的消息头信息中含有无效的字符，那么会抛出TypeError错误.
+
+## http.IncomingMessage类
+
+http.IncomingMessage类由node.js内部创建，它在http.Server类的request事件以及http.ClientRequest类的response事件中被创建.  它可以用来访问响应的状态，头信息以及数据等信息.
+
+http.IncomingMessage类实现了stream.Readable接口，它可以触发以下事件：
+
+### aborted事件
+
+当客户端中止了请求，socket连接被关闭后触发该事件.
+
+### close事件
+
+该事件意味着底层的socket连接已经被关闭，和end事件一样，该事件只会被触发一次.
+
+## message.destroy([error])
+
+* error: <Error>
+
+该方法会调用底层socket连接的destroy方法，如果提供了error参数，那么会触发error事件，在它的回调方法中会带有error参数的信息. 
+
+## message.headers
+
+* Object
+
+该属性标识了请求/响应的消息头部分. 它是以key/value的形式表示的消息头，其中消息头的key部分全部以小写显示:
+
+````javascript
+// Prints something like:
+//
+// { 'user-agent': 'curl/7.22.0',
+//   host: '127.0.0.1:8000',
+//   accept: '*/*' }
+console.log(request.headers);
+````
+
+在原始的消息头中，如果存在重复的消息头信息，那么按以下的方式处理：
+
+1. 如果是以下属性出现了重复，那么它将会被忽略：
+
+   `age`, `authorization`, `content-length`, `content-type`, `etag`, `expires`, `from`,`host`, `if-modified-since`, `if-unmodified-since`, `last-modified`, `location`, `max-forwards`,`proxy-authorization`, `referer`, `retry-after`, or`user-agent`
+
+2. set-cookie消息头是数组类型，因此重复的set-cookie会被加入到数组中
+
+3. 对于其它的消息头，重复的值用“，”连接
+
+## message.httpVersion
+
+* String
+
+在服务端的request事件中，该属性标识了客户端请求体中发送的http版本号. 在客户端的response事件中，该属性表示连接到服务端的http版本号. 可能的值为1.1或1.0
+
+另外，message.httpVersionMajor属性表示了第一个数字，而message.httpVersionMinor属性表示了第二个数字.
+
+## message.method
+
+* String
+
+该属性仅在服务端的request请求中有效. 它表示了客户端请求方法， 只读属性，例如: 'GET', 'POST', 'DELETE'
+
+## message.rawHeaders
+
+* Array
+
+该属性保留了接收到的原始的消息头信息. 另外，注意这个属性的数据格式，它是以[key1, value1, key2, value2…]这样的格式存储的数组， 其中奇数位置的为key, 偶数部分的为value. key值不会被转化成小写字母，重复的消息头也不会被合并.
+
+````javascript
+// Prints something like:
+//
+// [ 'user-agent',
+//   'this is invalid because there can be only one',
+//   'User-Agent',
+//   'curl/7.22.0',
+//   'Host',
+//   '127.0.0.1:8000',
+//   'ACCEPT',
+//   '*/*' ]
+console.log(request.rawHeaders);
+````
+
+## message.rawTrailers
+
+* Array
+
+该属性保留了接收到的未经处理的trailer信息. 仅在end事件中被填充.
+
+## message.setTimeout(msecs, callback)
+
+* msecs: Number
+* callback: Function
+
+该方法内部会调用message.connection.setTimeout(msecs, callback)方法，返回message对象.
+
+## message.statusCode
+
+* Number
+
+该属性记录了响应的状态码信息，仅在客户端的response事件中有效， 如404
+
+## message.statusMessage
+
+* String
+
+该属性记录了响应的状态消息，仅在客户端的response事件中有效， 如"Bad Request"
+
+## message.socket
+
+* net.Socket
+
+该属性记录了和当前连接关联的socket对象. 如果支持https请求，可以使用request.socket.getPeerCertificate()方法来获取客户端的认证信息
+
+## message.trailers
+
+* Object
+
+该属性记录了消息体中的trailer消息头部分，仅在end事件中被填充.
+
+## message.url
+
+* String
+
+该属性仅在服务端的request事件中有效. 它表示的是客户端请求的地址，具体的值为http请求体中的url部分:
+
+````javascript
+GET /status?name=ryan HTTP/1.1\r\n
+Accept: text/plain\r\n
+\r\n
+
+//那么request.url的值为'/status?name=ryan'
+````
+
+如果需要解析url的各个部分，可以通过url模块来解析：
+
+````javascript
+$ node
+> require('url').parse('/status?name=ryan')
+{
+  href: '/status?name=ryan',
+  search: '?name=ryan',
+  query: 'name=ryan',
+  pathname: '/status'
+}
+````
+
+如果需要解析url中的请求字符串，可以通过querystring模块的parse()方法来解析 ，也可以通过设置url.parse()方法的第二个参数为true来解析:
+
+````javascript
+$ node
+> require('url').parse('/status?name=ryan', true)
+{
+  href: '/status?name=ryan',
+  search: '?name=ryan',
+  query: {name: 'ryan'},
+  pathname: '/status'
+}
+````
+
+## http.METHODS
+
+* Array
+
+该属性记录了所有可用的HTTP方法列表
+
+## http.STATUS_CODE
+
+* Object
+
+该属性记录了所有标识的http响应码和响应信息. 例如： http.STATUS_CODE[404] === 'Not Found'.
+
+## http.createServer([requestListener])
+
+* 返回: http.Server
+
+调用该方法返回http.Server的实例. 如果提供了requestListener参数，那么它会被注册到http.Server的request事件
+
+## http.get(options\[, callback\])
+
+* options: Object
+* callback: Function
+* 返回: http.ClientRequest
+
+由于get请求非常常见，node.js提供了这个工具方法. 这个方法和http.request()方法唯一的不同在于它的请求方法被自动设置为'get'，并且自动调用了req.end()方法. 值得注意的是，响应的消息体内容必须在callback回调方法中被消费，具体的原因可以参见http.ClientRequest类中的说明.
+
+callback回调方法在回调的时候，会带上http.IncomingMessage类型的实例. 以下的参数演示了获取JSON字符串：
+
+````javascript
+http.get('http://nodejs.org/dist/index.json', (res) => {
+  const statusCode = res.statusCode;
+  const contentType = res.headers['content-type'];
+
+  let error;
+  if (statusCode !== 200) {
+    error = new Error(`Request Failed.\n` +
+                      `Status Code: ${statusCode}`);
+  } else if (!/^application\/json/.test(contentType)) {
+    error = new Error(`Invalid content-type.\n` +
+                      `Expected application/json but received ${contentType}`);
+  }
+  if (error) {
+    console.log(error.message);
+    // consume response data to free up memory
+    res.resume();
+    return;
+  }
+
+  res.setEncoding('utf8');
+  let rawData = '';
+  res.on('data', (chunk) => rawData += chunk);
+  res.on('end', () => {
+    try {
+      let parsedData = JSON.parse(rawData);
+      console.log(parsedData);
+    } catch (e) {
+      console.log(e.message);
+    }
+  });
+}).on('error', (e) => {
+  console.log(`Got error: ${e.message}`);
+});
+````
+
+## http.globalAgent
+
+* http.Agent
+
+该属性标识了默认的Agent对象，这个对象会被当作所有的客户端请求默认的agent对象.
+
+## http.request(options\[, callback])
+
+* options: Object
+  * protocol: String 使用的协议，默认为'http:'
+  * host: String 服务端的域名地址或IP地址. 默认为localhost
+  * hostname: String host属性的别名，为了支持url.parse()方法，优先考虑使用hostname属性
+  * family: Number  当解析域名地址时，使用的IP地址类型. 有效的值包括4和6，当不指定这个参数时，表示IPv4和IPv6都可以
+  * port: Number  服务端的端口号，默认为80
+  * localAddress:  String 本地地址
+  * socketPath: String Unix域的socket地址（使用host:port或者socketPath中的一种来指定地址）
+  * method: String http请求的方法, 默认为GET
+  * path: String http请求的地址，默认为'/'. 如果包含有请求字符串，需要在这个参数中带上. 例如: '/index.html?page=12'. 当路径参数中包含有非法字符串时，会抛出异常. 目前只会拒绝空格，但后续可能会增加其它的字符.
+  * headers: Object  包含有消息头信息的对象
+  * auth: String  基础认证，如"username:password"
+  * agent: http.Agent | Boolean 该参数用于配置agent的行为. 有效的值包括：
+    * undefined（默认)： 使用http.globalAgent对象
+    * Agent: 使用显式指定的agent对象
+    * false: 内部创建新的Agent对象，所有的属性值都是默认值.
+  * createConnection: Function  当不使用agent参数时，该参数指定了生成socket/stream对象的方法，这种方式可以避免继承Agent类来修改创建socket方法的麻烦. 具体可以参见agent.createConnection()方法的说明
+  * timeout: Integer  该参数用于指定socket的timeout时长，单位为毫秒. 
+* callback: Function 
+* 返回: http.ClientRequest
+
+node.js为每个服务端保持了一定数量的连接来处理客户端请求. 调用该方法可以让应用程序更方便地发送请求.
+
+options参数可以是对象类型也可以是字符串类型. 如果options参数是字符串，那么它会被url.parse()解析成对象.
+
+可选的callback回调函数会被注册到http.ClientRequest对象的response事件中.
+
+http.request()方法返回http.ClientRequest类的实例，它实现了stream.WritableStream接口. 如果应用程序需要通过POST方法上传文件，那么可以将文件的内容写入到ClientRequest对象中.
+
+````javascript
+var postData = querystring.stringify({
+  'msg' : 'Hello World!'
+});
+
+var options = {
+  hostname: 'www.google.com',
+  port: 80,
+  path: '/upload',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Length': Buffer.byteLength(postData)
+  }
+};
+
+var req = http.request(options, (res) => {
+  console.log(`STATUS: ${res.statusCode}`);
+  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+  res.setEncoding('utf8');
+  res.on('data', (chunk) => {
+    console.log(`BODY: ${chunk}`);
+  });
+  res.on('end', () => {
+    console.log('No more data in response.');
+  });
+});
+
+req.on('error', (e) => {
+  console.log(`problem with request: ${e.message}`);
+});
+
+// write data to request body
+req.write(postData);
+req.end();
+````
+
+**备注：** 在例子的最后调用了req.end()方法. 当使用http.request()方法时，应用程序必须调用http.end()方法，即使应用程序不需要发送任何数据，以此来通知node.js请求已经发送完成. 
+
+如果在发送的过程中发生了错误（如DNS解析异常，TCP层错误，HTTP解析错误等等）, 那么ClientRequest对象的error事件会被触发，如果没有注册error事件的监听器，那么会抛出相应的异常. 
+
+另外，还需要特别注意一些消息头信息：
+
+* 'Connection: keep-alive': 发送这个消息头会通知服务端保持当前的连接，后续的请求会利用这个连接
+* 'Content-Length': 发送这个消息头会禁用默认的分块传输编码
+* 'Expect'： 发送这个消息头会直接发送请求头信息. 通常情况下，当发送了'Expect: 100-continue'消息之后，必须同时设置timeout时间以及监听continue事件. 具体请参见RFC2616的8.2.3一节的说明
+* 'Authorization'： 设置这个消息头会覆盖auth选项.
+
+# 参考文献
+
+1. [官方文档](https://nodejs.org/dist/latest-v6.x/docs/api/http.html)
