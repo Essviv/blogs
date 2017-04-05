@@ -148,7 +148,7 @@ req.end();
 * auth: 基础认证信息，'user:password'
 
 * agent: 自定义Agent的行为. 当指定了agent对象后，请求的keepAlive选项会自动被打开. 该对象有效的值包括：
-	* undefind: 默认值，此时会使用https.globalAgent对象
+	* undefined: 默认值，此时会使用https.globalAgent对象
 	* Agent实例: 使用提供的agent实例
 	* false: 不保持当前的连接，自动设置Connection头为false
 
