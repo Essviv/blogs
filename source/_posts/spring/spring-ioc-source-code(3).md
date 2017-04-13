@@ -361,3 +361,156 @@ protected BeanWrapper instantiateBean(final String beanName, final RootBeanDefin
 ```
 
 到此为止，不管是通过工厂对象创建，还是直接通过构造函数创建，Spring容器已经完成了createBean()方法中的第一步，创建BeanWrapper的操作. 有了实例对象后，就需要对实例的属性进行填充及初始化操作. 这部分内容将会在下一篇文章中进行详细阐述. 
+
+### 2.4.2 populateBean()方法
+
+在创建完bean对象之后，就需要填充对象的属性，这个操作由populateBean()方法完成. populateBean()方法可以分成四个步骤：
+
+* 调用InstantiationAwareBeanPostProcessor接口的afterInstantiation()方法，这个接口定义了三个方法beforeInstantiazion, afterInstantiation以及postProcessorPropertyValues()， 分别用于在实例化对象前后以及在设置对象的属性值之前进行处理. beforeInstantiation()方法在调用createBean()方法之前就已经被调用过了，这里是在实例化对象之后，所以调用的是afterInstantiation()方法，而postProcessorPropertyValues()方法会在解析完属性值之后，填充到对象之前被调用，在populateBean()方法的第三步会碰到. 
+* 根据bean对象的定义，选择合适的自动注入模式(byName或byType), 并解析相应的参数
+* 调用InstantiationAwareBeanPostProcessor接口的postProcessorPropertyValues()方法，并检查当前对象的所有属性值是否已经解析完成
+* 填充属性值
+
+#### 2.4.2.1 调用postProcessAfterInstantiation()方法
+
+可以看到，这里的实现就是获取容器中定义的所有InstantiationAwareBeanPostProcessor接口，并依次调用它们的postProcessAfterInstantiation()方法即可，没有太多复杂的逻辑，不作赘述. 
+
+````java
+if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+  for (BeanPostProcessor bp : getBeanPostProcessors()) {
+    if (bp instanceof InstantiationAwareBeanPostProcessor) {
+      InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+      if (!ibp.postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)) {
+        continueWithPropertyPopulation = false;
+        break;
+      }
+    }
+  }
+}
+````
+
+#### 2.4.2.2 根据自动注入模式获取属性值
+
+bean对象的自动注入模式是在定义bean时通过autowire属性来设置的，可选的值包括byName, byType以及constructor, 其中constructor的情况已经在创建对象实例时处理过了，因此这里只需要考虑byName和byType两种情况. 顾名思义，byName就是通过属性的名称与容器中定义的bean名称进行自动注入，而byType则是根据类型注入.
+
+````java
+if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME ||
+    mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
+  MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
+
+  // Add property values based on autowire by name if applicable.
+  if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME) {
+    autowireByName(beanName, mbd, bw, newPvs);
+  }
+
+  // Add property values based on autowire by type if applicable.
+  if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
+    autowireByType(beanName, mbd, bw, newPvs);
+  }
+
+  pvs = newPvs;
+}
+````
+
+#### 根据bean名称自动注入
+
+从autowireByName()的实现可以看出，这个模式的自动注入过程比较简单，首先获取当前bean对象中还没有被设置过的非简单类型的属性(Spring框架不允许简单类型的自动注入), 然后遍历这些属性，根据属性的名称尝试从容器中获取相应的bean对象，得到依赖的对象后，记录该属性对应的值，并设置相应的依赖关系表即可. 
+
+````java
+protected void autowireByName(
+  String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
+
+  String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
+  for (String propertyName : propertyNames) {
+    if (containsBean(propertyName)) {
+      Object bean = getBean(propertyName);
+      pvs.add(propertyName, bean);
+      registerDependentBean(propertyName, beanName);
+    }
+  }
+}
+````
+
+#### 根据类型自动注入
+
+
+
+#### 2.4.2.3 调用postProcessPropertyValues()并检查依赖
+
+#### 2.4.2.4 设置属性值
+
+### 2.4.3 initilizeBean()方法
+
+在调用populateBean()方法填充完bean对象后，对象的创建工作就基本完成了. Spring容器中定义了定义了生命周期方法，用于在构造完对象之后和析构对象之前执行定制化的操作，其中包括InitializingBean接口，Aware接口以及配置文件中的init-method属性. 这些属性的处理都是在initializeBean()方法中进行处理的.
+
+可以看到， initializeBean()方法主要是四个步骤：
+
+* 调用Aware相关的接口，其中包括BeanNameAware接口，BeanClassLoaderAware接口以及BeanFactoryAware接口
+* 调用BeanPostProcessor的postProcessorBeforeInitialization()方法
+* 调用initMethod方法，包括InitializingBean接口以及init-method属性定义的方法, 其中InitializingBean接口先于init-method方法执行
+* 调用BeanPostProcessor的postProcessorAfterInitialization()方法
+
+````java
+protected Object initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) {
+  //执行Aware接口方法
+  invokeAwareMethods(beanName, bean);
+  
+  //执行BeanPostProcessor的beforeIntialization()方法
+  Object wrappedBean = bean;
+  if (mbd == null || !mbd.isSynthetic()) {
+    wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
+  }
+
+  //执行init()方法
+  try {
+    invokeInitMethods(beanName, wrappedBean, mbd);
+  }
+  catch (Throwable ex) {
+    throw new BeanCreationException(
+      (mbd != null ? mbd.getResourceDescription() : null),
+      beanName, "Invocation of init method failed", ex);
+  }
+
+  //执行BeanPostProcessor接口的afterBeanInitialization方法
+  if (mbd == null || !mbd.isSynthetic()) {
+    wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
+  }
+  return wrappedBean;
+}
+
+//invokeAwareMethod
+private void invokeAwareMethods(final String beanName, final Object bean) {
+  if (bean instanceof Aware) {
+    if (bean instanceof BeanNameAware) {
+      ((BeanNameAware) bean).setBeanName(beanName);
+    }
+    if (bean instanceof BeanClassLoaderAware) {
+      ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+    }
+    if (bean instanceof BeanFactoryAware) {
+      ((BeanFactoryAware) bean).setBeanFactory(AbstractAutowireCapableBeanFactory.this);
+    }
+  }
+}
+
+//invokeInitMethod
+protected void invokeInitMethods(String beanName, final Object bean, RootBeanDefinition mbd)
+  throws Throwable {
+
+  //执行InitializaingBean接口
+  boolean isInitializingBean = (bean instanceof InitializingBean);
+  if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {    
+   ((InitializingBean) bean).afterPropertiesSet();
+  }
+
+  //执行init-method方法
+  if (mbd != null) {
+    String initMethodName = mbd.getInitMethodName();
+    if (initMethodName != null && !(isInitializingBean && "afterPropertiesSet".equals(initMethodName)) &&
+        !mbd.isExternallyManagedInitMethod(initMethodName)) {
+      invokeCustomInitMethod(beanName, bean, mbd);
+    }
+  }
+}
+````
+
