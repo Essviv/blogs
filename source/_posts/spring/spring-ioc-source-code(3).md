@@ -433,11 +433,76 @@ protected void autowireByName(
 
 #### 根据类型自动注入
 
+autowireByType()方法的实现思路和byName()的思路是一样的，也是先获取当前bean对象中没有被设置过的非简单类型的属性，然后遍历这些属性，只不过这里不是根据bean对象的名称完成注入，而是调用了resolveDependency()方法来获取与属性匹配的对象，并将该对象注入到属性中，设置相应的依赖关系. resolveDependency()方法的实现稍微有些复杂，这里暂时略过，本文最后会对这个方法进行详述.
 
+````java
+protected void autowireByType(
+  String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
+
+  TypeConverter converter = getCustomTypeConverter();
+  if (converter == null) {
+    converter = bw;
+  }
+
+  Set<String> autowiredBeanNames = new LinkedHashSet<String>(4);
+  String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
+  for (String propertyName : propertyNames) {
+    try {
+      PropertyDescriptor pd = bw.getPropertyDescriptor(propertyName);
+      // Don't try autowiring by type for type Object: never makes sense,
+      // even if it technically is a unsatisfied, non-simple property.
+      if (Object.class != pd.getPropertyType()) {
+        MethodParameter methodParam = BeanUtils.getWriteMethodParameter(pd);
+        // Do not allow eager init for type matching in case of a prioritized post-processor.
+        boolean eager = !PriorityOrdered.class.isAssignableFrom(bw.getWrappedClass());
+        DependencyDescriptor desc = new AutowireByTypeDependencyDescriptor(methodParam, eager);
+        Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames, converter);
+        if (autowiredArgument != null) {
+          pvs.add(propertyName, autowiredArgument);
+        }
+        for (String autowiredBeanName : autowiredBeanNames) {
+          registerDependentBean(autowiredBeanName, beanName);
+        }
+        autowiredBeanNames.clear();
+      }
+    }
+    catch (BeansException ex) {
+      throw new UnsatisfiedDependencyException(mbd.getResourceDescription(), beanName, propertyName, ex);
+    }
+  }
+}
+````
 
 #### 2.4.2.3 调用postProcessPropertyValues()并检查依赖
 
+根据配置的注入模式获取到相应的值之后，就可以调用InstantiationAwareBeanPostProcessor接口的postProcessPropertyValue了，另外，考虑到在解析属性值的过程中，有些属性值可能会解析不到相应的对象，因此在赋值之前还需要校验是否所有的属性值都已经解析完成了. 
+
+````java
+boolean hasInstAwareBpps = hasInstantiationAwareBeanPostProcessors();
+boolean needsDepCheck = (mbd.getDependencyCheck() != RootBeanDefinition.DEPENDENCY_CHECK_NONE);
+
+if (hasInstAwareBpps || needsDepCheck) {
+  PropertyDescriptor[] filteredPds = filterPropertyDescriptorsForDependencyCheck(bw, mbd.allowCaching);
+  if (hasInstAwareBpps) {
+    for (BeanPostProcessor bp : getBeanPostProcessors()) {
+      if (bp instanceof InstantiationAwareBeanPostProcessor) {
+        InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+        pvs = ibp.postProcessPropertyValues(pvs, filteredPds, bw.getWrappedInstance(), beanName);
+        if (pvs == null) {
+          return;
+        }
+      }
+    }
+  }
+  if (needsDepCheck) {
+    checkDependencies(beanName, mbd, filteredPds, pvs);
+  }
+}
+````
+
 #### 2.4.2.4 设置属性值
+
+在经过前面三步之后，Spring容器已经获取到所有属性的值，并且已经完成了相应的BeanPostProcessor接口的调用及依赖关系的校验，最后一步就是将这些属性值赋给对象的相应属性即可. 
 
 ### 2.4.3 initilizeBean()方法
 
@@ -513,4 +578,143 @@ protected void invokeInitMethods(String beanName, final Object bean, RootBeanDef
   }
 }
 ````
+
+## 2. 5 resolveDependency()方法
+
+在前面提到的populateBean()方法中，如果bean对象注入的模式是byType, 那么Spring容器会调用resolveDependency()方法来解析属性的注入值，现在就来详细地看下这个方法的实现. resolveDependency()方法的实现主要是由doResolveDependency()方法来完成，这个方法的实现可以分成三个步骤：
+
+1. 首先尝试从autowireCandidateResolver接口尝试获取请求的类型是否有建议值，如果有则直接返回这个值即可，当然在返回前，可能还需要使用容器的类型转换.
+
+````java
+Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
+if (value != null) {
+  if (value instanceof String) {
+    String strVal = resolveEmbeddedValue((String) value);
+    BeanDefinition bd = (beanName != null && containsBean(beanName) ? getMergedBeanDefinition(beanName) : null);
+    value = evaluateBeanDefinitionString(strVal, bd);
+  }
+  TypeConverter converter = (typeConverter != null ? typeConverter : getTypeConverter());
+  return (descriptor.getField() != null ?
+          converter.convertIfNecessary(value, type, descriptor.getField()) :
+          converter.convertIfNecessary(value, type, descriptor.getMethodParameter()));
+}
+````
+
+2. 判断当前的属性类型是否为Array, Collection以及Map类型
+
+   这种情况下，框架首先会分别获取Array数组元素类型，Collection元素类型以及Map中的Value类型, 然后再以这些元素类型为请求类型，调用findAutowireCandidates()方法查找候选的注入对象，返回所有的匹配对象. 
+
+3. 尝试从容器中找到所有与请求类型匹配的对象
+
+   这步主要是通过findAutowireCandidates()方法来完成的. findAutowireCandidates()方法首先从resolvableDependencies表中查找请求类型的值，然后遍历所有与请求类型匹配的对象，依次检查它们是否有可能是候选的对象，这步是通过isAutowireCandidate()方法来完成的，这个方法会在后续进行说明. 遍历结束后如果没有候选的对象，那么Spring容器还会尝试备选的描述符再次进行匹配，如果匹配结果还是为空，Spring框架会把"自我引用"的情况也考虑在内，最终返回可能的候选对象. 
+
+````java
+protected Map<String, Object> findAutowireCandidates(
+  String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
+
+  String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+    this, requiredType, true, descriptor.isEager());
+  Map<String, Object> result = new LinkedHashMap<String, Object>(candidateNames.length);
+  for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
+    if (autowiringType.isAssignableFrom(requiredType)) {
+      Object autowiringValue = this.resolvableDependencies.get(autowiringType);
+      autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
+      if (requiredType.isInstance(autowiringValue)) {
+        result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
+        break;
+      }
+    }
+  }
+  for (String candidateName : candidateNames) {
+    if (!isSelfReference(beanName, candidateName) && isAutowireCandidate(candidateName, descriptor)) {
+      result.put(candidateName, descriptor.resolveCandidate(candidateName, this));
+    }
+  }
+  if (result.isEmpty() && !indicatesMultipleBeans(requiredType)) {
+    // Consider fallback matches if the first pass failed to find anything...
+    DependencyDescriptor fallbackDescriptor = descriptor.forFallbackMatch();
+    for (String candidateName : candidateNames) {
+      if (!isSelfReference(beanName, candidateName) && isAutowireCandidate(candidateName, fallbackDescriptor)) {
+        result.put(candidateName, descriptor.resolveCandidate(candidateName, this));
+      }
+    }
+    if (result.isEmpty()) {
+      // Consider self references before as a final pass
+      for (String candidateName : candidateNames) {
+        if (isSelfReference(beanName, candidateName) && isAutowireCandidate(candidateName, fallbackDescriptor)) {
+          result.put(candidateName, descriptor.resolveCandidate(candidateName, this));
+        }
+      }
+    }
+  }
+  return result;
+}
+````
+
+在找到备选对象后，如果存在多个备选对象的情况，Spring容器还会调用determineAutowireCandidate()方法来决定最终注入哪个对象. 选择的依据就是bean的配置信息中是否设置了primary属性，或者设置了Priority注解. 对于primary属性，必须有且只有一个对象配置了这个属性，否则会抛出异常；而对于Priority注解，则不能存在两个优先级相同的最高优先级对象，否则也会抛出异常. 如果所有的候选对象中都没有设置这些属性值，Spring框架会尝试根据候选对象的别名进行匹配，直到找到匹配对象为止. 
+
+````java
+protected String determineAutowireCandidate(Map<String, Object> candidateBeans, DependencyDescriptor descriptor) {
+  Class<?> requiredType = descriptor.getDependencyType();
+  String primaryCandidate = determinePrimaryCandidate(candidateBeans, requiredType);
+  if (primaryCandidate != null) {
+    return primaryCandidate;
+  }
+  String priorityCandidate = determineHighestPriorityCandidate(candidateBeans, requiredType);
+  if (priorityCandidate != null) {
+    return priorityCandidate;
+  }
+  // Fallback
+  for (Map.Entry<String, Object> entry : candidateBeans.entrySet()) {
+    String candidateBeanName = entry.getKey();
+    Object beanInstance = entry.getValue();
+    if ((beanInstance != null && this.resolvableDependencies.containsValue(beanInstance)) ||
+        matchesBeanName(candidateBeanName, descriptor.getDependencyName())) {
+      return candidateBeanName;
+    }
+  }
+  return null;
+}
+````
+
+## 2.6 isAutowireCandidate()方法
+
+在上面解读resolveDependency()方法的过程中，我们路过了isAutowireCandidate()方法的说明，这里就来看看它的实现. 可以看到，这个方法的最后是调用了AutowireCandidateResolver接口来完成判断，这里可以认为是“策略模式”的实现. 以当前的例子来讲，DefaultListableBeanFactory类中默认使用的是SimpleAutowireCandidateResolver实现，这个实现在判断某个对象能否成为候选的注入对象时，以bean定义中的autowire-candidate属性为准. 
+
+````java
+protected boolean isAutowireCandidate(String beanName, RootBeanDefinition mbd,
+                                      DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
+
+  String beanDefinitionName = BeanFactoryUtils.transformedBeanName(beanName);
+  resolveBeanClass(mbd, beanDefinitionName);
+  if (mbd.isFactoryMethodUnique) {
+    boolean resolve;
+    synchronized (mbd.constructorArgumentLock) {
+      resolve = (mbd.resolvedConstructorOrFactoryMethod == null);
+    }
+    if (resolve) {
+      new ConstructorResolver(this).resolveFactoryMethodIfPossible(mbd);
+    }
+  }
+  return resolver.isAutowireCandidate(
+    new BeanDefinitionHolder(mbd, beanName, getAliases(beanDefinitionName)), descriptor);
+}
+````
+
+# 总结
+
+到此为止，我们已经把Spring框架中提供的IoC模块的实现源码做了比较简单的解读，这里做个总结，Spring框架提供的IoC机制可以通过读取配置文件及注解的方式，自动管理应用程序的对象以及它们之间的依赖关系，整个实现过程可以分成两个大的步骤：
+
+1. 调用refresh()方法加载bean定义，并配置相应的BeanFactoryPostProcessor, BeanPostProcessor, MessageSource以及事件监听器等设置. 加载bean定义主要是通过读取配置文件的方式进行，对于默认的beans命名空间有默认的读取方式，而对于自定义的命名空间，则是通过NamespaceHandlerResolver来获取相应的NamespaceHandler对象，并交由它来读取相应的配置
+2. 当读取完对象的定义后，应用程序就可以调用getBean()方法来获取容器中管理的对象，这个方法的实现可大体分成三个步骤：
+   * 根据类型解析名称
+   * 如果存在多个满足条件的名称，则按一定的规则进行过滤，获取匹配度最高的那个bean名称
+   * 根据bean名称获取对象实例，获取的过程可简单概括为： 先确保它依赖的所有对象都已经完成创建，然后调用createBean()方法创建对象，在createBean()方法的实现中包括createBeanInstance()，populateBean()以及InitializeBean()三个步骤.
+
+通过解读Spring IoC模块的源码，我们对Spring框架有了基本的了解，后续还需要继续深入理解AOP, MVC模块，才能够形成更加全面的认识.
+
+# 参考文献
+
+1. [官方文档](https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/)
+2. Spring JavaDoc]
 
